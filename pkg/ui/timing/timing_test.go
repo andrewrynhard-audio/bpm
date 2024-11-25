@@ -36,19 +36,19 @@ func TestFormatWithUnit(t *testing.T) {
 		expectedOutput string
 	}{
 		// Tests for milliseconds
-		// {15.496, true, "16 ms"},
-		// {15.496, false, "15.496 ms"},
-		// {15.000, true, "15 ms"},
-		// {15.000, false, "15.000 ms"},
+		{15.496, true, "16 ms"},
+		{15.496, false, "15.496 ms"},
+		{15.000, true, "15 ms"},
+		{15.000, false, "15.000 ms"},
 		// Tests for microseconds
 		{0.996, true, "1 ms"},
-		// {0.996, false, "996.000 μs"},
-		// {0.0015, true, "2 μs"},
-		// {0.0015, false, "1.500 μs"},
+		{0.996, false, "996.000 μs"},
+		{0.0015, true, "2 μs"},
+		{0.0015, false, "1.500 μs"},
 	}
 
 	for _, test := range tests {
-		output := formatWithUnit(test.value, test.roundToWhole)
+		output, _ := formatWithUnit(test.value, test.roundToWhole)
 		if output != test.expectedOutput {
 			t.Errorf("formatWithUnit(%f, %v) = %q; want %q", test.value, test.roundToWhole, output, test.expectedOutput)
 		}
