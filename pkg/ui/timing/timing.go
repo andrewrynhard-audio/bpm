@@ -173,7 +173,15 @@ func formatWithUnit(value float64, roundToWhole bool) (string, tcell.Style) {
 		switch {
 		case rounded >= 1000:
 			// Handle seconds for values >= 1000 ms
-			return fmt.Sprintf("%.0f s", rounded/1000), secondsStyle
+
+			seconds := rounded / 1000
+
+			// Round to the nearest tenth if greater than 1 second
+			if seconds > 1 {
+				seconds = math.Round(seconds*10) / 10
+			}
+
+			return fmt.Sprintf("%.1f s", seconds), secondsStyle
 		case rounded >= 1:
 			// Handle milliseconds for values >= 1 ms
 			return fmt.Sprintf("%.0f ms", rounded), millisecondsStyle
