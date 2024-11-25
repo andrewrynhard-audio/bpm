@@ -19,8 +19,7 @@ var (
 func Check() error {
 	available, url, err := check()
 	if err != nil {
-		fmt.Printf("Error checking for updates: %v\n", err)
-		os.Exit(1)
+		return err
 	}
 
 	if available {
