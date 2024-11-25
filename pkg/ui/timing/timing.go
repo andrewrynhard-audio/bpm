@@ -78,14 +78,15 @@ func (t *Timing) write(roundOutputs bool, screen tcell.Screen) {
 	}
 
 	// Column widths (in characters)
-	columnWidths := []int{10, 15, 15, 15, 15, 15}
+	columnWidths := []int{15, 15, 15, 15, 15, 15}
 	totalWidth := 0
 	for _, w := range columnWidths {
 		totalWidth += w
 	}
 
-	// Total table height (header + rows)
-	totalHeight := len(notes) + 1 // +1 for the header row
+	// Total table height (header + spaced rows)
+	rowPadding := 1
+	totalHeight := len(notes)*(1+rowPadding) + 1 // +1 for the header row
 
 	// Terminal size
 	termWidth, termHeight := screen.Size()
@@ -104,7 +105,7 @@ func (t *Timing) write(roundOutputs bool, screen tcell.Screen) {
 		currentX += columnWidths[i]
 	}
 
-	// Render each row
+	// Render each row with padding
 	for row := 0; row < len(notes); row++ {
 		ms := milliseconds[row]
 		ms10x := ms * 10
@@ -112,26 +113,29 @@ func (t *Timing) write(roundOutputs bool, screen tcell.Screen) {
 		ms100 := ms / 100
 		ms1000 := ms / 1000
 
+		// Adjust startY for each row with padding
+		currentRowY := startY + (row+1)*(1+rowPadding) // Add 1 for header and rowPadding
+
 		currentX := startX
-		renderText(screen, currentX, startY+row+1, notes[row], tcell.StyleDefault.Foreground(tcell.ColorWhite))
+		renderText(screen, currentX, currentRowY, notes[row], tcell.StyleDefault.Foreground(tcell.ColorWhite))
 		currentX += columnWidths[0]
 
-		renderText(screen, currentX, startY+row+1, formatWithUnit(ms, roundOutputs), tcell.StyleDefault.Foreground(tcell.ColorWhite))
+		renderText(screen, currentX, currentRowY, formatWithUnit(ms, roundOutputs), tcell.StyleDefault.Foreground(tcell.ColorWhite))
 		currentX += columnWidths[1]
 
-		renderText(screen, currentX, startY+row+1, formatWithUnit(ms10x, roundOutputs), tcell.StyleDefault.Foreground(tcell.ColorWhite))
+		renderText(screen, currentX, currentRowY, formatWithUnit(ms10x, roundOutputs), tcell.StyleDefault.Foreground(tcell.ColorWhite))
 		currentX += columnWidths[2]
 
-		renderText(screen, currentX, startY+row+1, formatWithUnit(ms10, roundOutputs), tcell.StyleDefault.Foreground(tcell.ColorWhite))
+		renderText(screen, currentX, currentRowY, formatWithUnit(ms10, roundOutputs), tcell.StyleDefault.Foreground(tcell.ColorWhite))
 		currentX += columnWidths[3]
 
-		renderText(screen, currentX, startY+row+1, formatWithUnit(ms100, roundOutputs), tcell.StyleDefault.Foreground(tcell.ColorWhite))
+		renderText(screen, currentX, currentRowY, formatWithUnit(ms100, roundOutputs), tcell.StyleDefault.Foreground(tcell.ColorWhite))
 		currentX += columnWidths[4]
 
-		renderText(screen, currentX, startY+row+1, formatWithUnit(ms1000, roundOutputs), tcell.StyleDefault.Foreground(tcell.ColorWhite))
+		renderText(screen, currentX, currentRowY, formatWithUnit(ms1000, roundOutputs), tcell.StyleDefault.Foreground(tcell.ColorWhite))
 	}
 
-	// Display help message at the bottom
+	// Render help message at the bottom
 	helpMessage := "Press 'R' to reset, 'ESC' or 'Q' to quit, 'F1' to toggle whole numbers/decimals."
 	renderText(screen, (termWidth-len(helpMessage))/2, termHeight-1, helpMessage, tcell.StyleDefault.Foreground(tcell.ColorGreen))
 
