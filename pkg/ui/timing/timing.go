@@ -64,7 +64,7 @@ func (i *Timing) calculate() {
 func (t *Timing) write(roundOutputs bool) {
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 
-	headers := []string{"Note", "Time", "1/10th", "1/100th", "1/1000th"}
+	headers := []string{"Note", "Time", "10x", "1/10th", "1/100th", "1/1000th"}
 	notes := []string{"1/4", "1/8", "1/16", "1/32", "1/64", "1/128", "1/256", "1/512", "1/1024"}
 	milliseconds := []float64{
 		t.Quarter, t.Eighth, t.Sixteenth,
@@ -72,32 +72,53 @@ func (t *Timing) write(roundOutputs bool) {
 		t.TwoFiftySixth, t.FiveTwelve, t.TenTwentyFour,
 	}
 
+	// Get terminal size
 	termWidth, termHeight := termbox.Size()
-	startX := (termWidth - 60) / 2
+
+	// Calculate column positions dynamically
+	columnWidths := []int{10, 15, 15, 15, 15, 15} // Column widths for headers and data
+	totalWidth := 0
+	for _, w := range columnWidths {
+		totalWidth += w
+	}
+	startX := (termWidth - totalWidth) / 2
 	startY := (termHeight - len(notes) - 2) / 2
 
 	// Display BPM at the top
 	renderText(startX, startY-2, fmt.Sprintf("BPM: %d", int(t.BPM)), termbox.ColorWhite)
 
 	// Render table headers
+	currentX := startX
 	for i, header := range headers {
-		renderText(startX+i*15, startY, header, termbox.ColorCyan)
+		renderText(currentX, startY, header, termbox.ColorCyan)
+		currentX += columnWidths[i]
 	}
 
 	// Render each row
 	for row := 0; row < len(notes); row++ {
 		ms := milliseconds[row]
+		ms10x := ms * 10
 		ms10 := ms / 10
 		ms100 := ms / 100
 		ms1000 := ms / 1000
 
-		renderText(startX, startY+row+1, notes[row], termbox.ColorWhite)
+		currentX := startX
+		renderText(currentX, startY+row+1, notes[row], termbox.ColorWhite)
+		currentX += columnWidths[0]
 
-		// Pass `roundOutputs` explicitly to `formatWithUnit`
-		renderText(startX+15, startY+row+1, formatWithUnit(ms, roundOutputs), termbox.ColorWhite)
-		renderText(startX+30, startY+row+1, formatWithUnit(ms10, roundOutputs), termbox.ColorWhite)
-		renderText(startX+45, startY+row+1, formatWithUnit(ms100, roundOutputs), termbox.ColorWhite)
-		renderText(startX+60, startY+row+1, formatWithUnit(ms1000, roundOutputs), termbox.ColorWhite)
+		renderText(currentX, startY+row+1, formatWithUnit(ms, roundOutputs), termbox.ColorWhite)
+		currentX += columnWidths[1]
+
+		renderText(currentX, startY+row+1, formatWithUnit(ms10x, roundOutputs), termbox.ColorWhite)
+		currentX += columnWidths[2]
+
+		renderText(currentX, startY+row+1, formatWithUnit(ms10, roundOutputs), termbox.ColorWhite)
+		currentX += columnWidths[3]
+
+		renderText(currentX, startY+row+1, formatWithUnit(ms100, roundOutputs), termbox.ColorWhite)
+		currentX += columnWidths[4]
+
+		renderText(currentX, startY+row+1, formatWithUnit(ms1000, roundOutputs), termbox.ColorWhite)
 	}
 
 	// Display help message at the bottom
@@ -118,34 +139,40 @@ func renderText(x, y int, text string, color termbox.Attribute) {
 // - For values ≥ 1, it uses milliseconds (ms).
 // - For values < 1, it converts to microseconds (μs).
 func formatWithUnit(value float64, roundToWhole bool) string {
-	if roundToWhole {
+	switch {
+	case roundToWhole:
 		// Apply rounding first
 		rounded := roundHumanCascading(value)
 
-		// Determine the appropriate unit after rounding
-		if rounded >= 1 {
+		switch {
+		case rounded >= 1000:
+			// Handle seconds for values >= 1000 ms
+			return fmt.Sprintf("%.0f s", rounded/1000)
+		case rounded >= 1:
+			// Handle milliseconds for values >= 1 ms
 			return fmt.Sprintf("%.0f ms", rounded)
-		}
-
-		// Convert to μs only if the original value was less than 1 ms
-		if value < 1 {
+		default:
+			// Handle microseconds for values < 1 ms
 			roundedInMicroseconds := roundHumanCascading(value * 1000)
 			if roundedInMicroseconds < 1 {
-				// Display "<1 μs" for very small values
 				return "<1 μs"
 			}
 			return fmt.Sprintf("%.0f μs", roundedInMicroseconds)
 		}
 
-		// If the original value was between 0 and 1 ms but rounded to 0 ms, still show "0 ms"
-		return "0 ms"
+	default: // Not rounding
+		switch {
+		case value >= 1000:
+			// Handle seconds for values >= 1000 ms
+			return fmt.Sprintf("%.3f s", value/1000)
+		case value >= 1:
+			// Handle milliseconds for values >= 1 ms
+			return fmt.Sprintf("%.3f ms", value)
+		default:
+			// Handle microseconds for values < 1 ms
+			return fmt.Sprintf("%.3f μs", value*1000)
+		}
 	}
-
-	// Without rounding, format with three decimal places and appropriate unit
-	if value >= 1 {
-		return fmt.Sprintf("%.3f ms", value)
-	}
-	return fmt.Sprintf("%.3f μs", value*1000)
 }
 
 // roundHumanCascading rounds a float64 to the nearest whole number
