@@ -159,7 +159,7 @@ func renderText(screen tcell.Screen, x, y int, text string, style tcell.Style) {
 // formatWithUnit formats a number dynamically based on its magnitude and rounding preference.
 // - If `roundToWhole` is true, it rounds before determining the unit.
 // - For values ≥ 1, it uses milliseconds (ms).
-// - For values < 1, it converts to microseconds (μs).
+// - For values < 1, it converts to microseconds (us).
 func formatWithUnit(value float64, roundToWhole bool) (string, tcell.Style) {
 	// Define styles for different units with color-blind-friendly shades
 	secondsStyle := tcell.StyleDefault.Foreground(tcell.ColorYellow)                     // Yellow
@@ -189,9 +189,9 @@ func formatWithUnit(value float64, roundToWhole bool) (string, tcell.Style) {
 			// Handle microseconds for values < 1 ms
 			roundedInMicroseconds := roundHumanCascading(value * 1000)
 			if roundedInMicroseconds < 1 {
-				return "<1 μs", microsecondsStyle
+				return "<1 us", microsecondsStyle
 			}
-			return fmt.Sprintf("%.0f μs", roundedInMicroseconds), microsecondsStyle
+			return fmt.Sprintf("%.0f us", roundedInMicroseconds), microsecondsStyle
 		}
 
 	default: // Not rounding
@@ -204,7 +204,7 @@ func formatWithUnit(value float64, roundToWhole bool) (string, tcell.Style) {
 			return fmt.Sprintf("%.3f ms", value), millisecondsStyle
 		default:
 			// Handle microseconds for values < 1 ms
-			return fmt.Sprintf("%.3f μs", value*1000), microsecondsStyle
+			return fmt.Sprintf("%.3f us", value*1000), microsecondsStyle
 		}
 	}
 }
