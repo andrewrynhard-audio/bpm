@@ -26,7 +26,7 @@ type Timing struct {
 func (t *Timing) Render(sharedState *state.SharedState, screen tcell.Screen, bpm float64) {
 	t.BPM = bpm
 	t.calculate()
-	t.write(sharedState.RoundOutputs, screen)
+	t.write(screen, sharedState.RoundOutputs, sharedState.Locked)
 }
 
 func (t *Timing) Reset(sharedState *state.SharedState, screen tcell.Screen) {
@@ -43,12 +43,12 @@ func (t *Timing) Reset(sharedState *state.SharedState, screen tcell.Screen) {
 	t.FiveTwelve = 0
 	t.TenTwentyFour = 0
 
-	t.write(sharedState.RoundOutputs, screen)
+	t.write(screen, sharedState.RoundOutputs, sharedState.Locked)
 }
 
 func (t *Timing) StateChanged(sharedState *state.SharedState, screen tcell.Screen) {
 	// Rerender with the updated rounding state
-	t.write(sharedState.RoundOutputs, screen)
+	t.write(screen, sharedState.RoundOutputs, sharedState.Locked)
 }
 
 func (t *Timing) calculate() {
@@ -65,7 +65,7 @@ func (t *Timing) calculate() {
 	t.TenTwentyFour = t.Quarter * 0.00390625
 }
 
-func (t *Timing) write(roundOutputs bool, screen tcell.Screen) {
+func (t *Timing) write(screen tcell.Screen, roundOutputs bool, locked bool) {
 	screen.Clear()
 
 	// Table data
@@ -140,7 +140,13 @@ func (t *Timing) write(roundOutputs bool, screen tcell.Screen) {
 	}
 
 	// Render help message at the bottom
-	helpMessage := "Press 'R' to reset, 'ESC' or 'Q' to quit, 'F1' to toggle whole numbers/decimals."
+	helpMessageTpl := "Press 'R' to reset, 'L' to %s, 'ESC' or 'Q' to quit, 'F1' to toggle whole numbers/decimals."
+	helpMessage := fmt.Sprintf(helpMessageTpl, "lock")
+
+	if locked {
+		helpMessage = fmt.Sprintf(helpMessageTpl, "unlock")
+	}
+
 	renderText(screen, (termWidth-len(helpMessage))/2, termHeight-1, helpMessage, tcell.StyleDefault.Foreground(tcell.ColorGreen))
 
 	screen.Show()

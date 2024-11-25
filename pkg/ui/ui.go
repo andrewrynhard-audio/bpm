@@ -41,6 +41,10 @@ func Tap(sharedState *state.SharedState, elements ...Element) {
 
 		switch ev := event.(type) {
 		case *tcell.EventMouse:
+			if sharedState.Locked {
+				continue
+			}
+
 			if ev.Buttons() == tcell.Button1 { // Left mouse button
 				now := time.Now()
 
@@ -81,17 +85,27 @@ func Tap(sharedState *state.SharedState, elements ...Element) {
 				case 'r', 'R':
 					intervals = nil
 					lastClick = time.Time{}
+					sharedState.Reset()
 					for _, element := range elements {
 						element.Reset(sharedState, screen)
+					}
+				case 'F':
+					sharedState.RoundOutputs = !sharedState.RoundOutputs
+					for _, element := range elements {
+						element.StateChanged(sharedState, screen)
+					}
+				case 'l', 'L':
+					sharedState.Locked = !sharedState.Locked
+					for _, element := range elements {
+						element.StateChanged(sharedState, screen)
 					}
 				}
 			}
 
 		case *tcell.EventResize:
-			// Clear and refresh the screen on resize
 			screen.Clear()
 			for _, element := range elements {
-				element.Render(sharedState, screen, 0) // Re-render with initial state
+				element.Render(sharedState, screen, 0)
 			}
 
 		default:
