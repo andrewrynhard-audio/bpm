@@ -10,6 +10,8 @@ import (
 
 type Timing struct {
 	BPM             float64
+	Full            float64
+	Half            float64
 	Quarter         float64
 	Eighth          float64
 	Sixteenth       float64
@@ -29,6 +31,8 @@ func (t *Timing) Render(sharedState *state.SharedState, screen tcell.Screen, bpm
 
 func (t *Timing) Reset(sharedState *state.SharedState, screen tcell.Screen) {
 	t.BPM = 0
+	t.Full = 0
+	t.Half = 0
 	t.Quarter = 0
 	t.Eighth = 0
 	t.Sixteenth = 0
@@ -48,7 +52,9 @@ func (t *Timing) StateChanged(sharedState *state.SharedState, screen tcell.Scree
 }
 
 func (t *Timing) calculate() {
-	t.Quarter = 60000.00 / t.BPM
+	t.Full = 240000.00 / t.BPM
+	t.Half = t.Full * 0.5
+	t.Quarter = t.Half * 0.5
 	t.Eighth = t.Quarter * 0.5
 	t.Sixteenth = t.Quarter * 0.25
 	t.ThirtySecond = t.Quarter * 0.125
@@ -63,9 +69,9 @@ func (t *Timing) write(roundOutputs bool, screen tcell.Screen) {
 	screen.Clear()
 
 	headers := []string{"Note", "Time", "10x", "1/10th", "1/100th", "1/1000th"}
-	notes := []string{"1/4", "1/8", "1/16", "1/32", "1/64", "1/128", "1/256", "1/512", "1/1024"}
+	notes := []string{"1", "1/2", "1/4", "1/8", "1/16", "1/32", "1/64", "1/128", "1/256", "1/512", "1/1024"}
 	milliseconds := []float64{
-		t.Quarter, t.Eighth, t.Sixteenth,
+		t.Full, t.Half, t.Quarter, t.Eighth, t.Sixteenth,
 		t.ThirtySecond, t.SixtyFourth, t.OneTwentyEighth,
 		t.TwoFiftySixth, t.FiveTwelve, t.TenTwentyFour,
 	}
