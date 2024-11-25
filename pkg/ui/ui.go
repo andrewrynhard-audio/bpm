@@ -6,87 +6,96 @@ import (
 	"time"
 
 	"github.com/andrewrynhard-audio/bpm/pkg/state"
-	"github.com/nsf/termbox-go"
+	"github.com/gdamore/tcell/v2"
 )
 
 type Element interface {
-	Render(float64, *state.SharedState)
-	Reset(*state.SharedState)
-	StateChanged(sharedState *state.SharedState)
+	Render(*state.SharedState, tcell.Screen, float64)
+	Reset(*state.SharedState, tcell.Screen)
+	StateChanged(*state.SharedState, tcell.Screen)
 }
 
 func Tap(sharedState *state.SharedState, elements ...Element) {
-	stop := make(chan struct{})
-	defer close(stop)
+	screen, err := tcell.NewScreen()
+	if err != nil {
+		fmt.Println("Error creating tcell screen:", err)
+		return
+	}
+	defer screen.Fini()
 
-	go func() {
-		err := termbox.Init()
-		if err != nil {
-			fmt.Println("Error initializing termbox:", err)
-			return
-		}
-		defer termbox.Close()
+	err = screen.Init()
+	if err != nil {
+		fmt.Println("Error initializing tcell screen:", err)
+		return
+	}
 
-		var lastClick time.Time
-		var intervals []time.Duration
+	screen.EnableMouse()
+	screen.Clear()
 
-		termbox.SetInputMode(termbox.InputMouse)
+	var lastClick time.Time
+	var intervals []time.Duration
 
-		for {
-			ev := termbox.PollEvent()
+	for {
+		// Poll for events
+		event := screen.PollEvent()
 
-			switch ev.Type {
-			case termbox.EventMouse:
-				if ev.Key == termbox.MouseLeft {
-					now := time.Now()
+		switch ev := event.(type) {
+		case *tcell.EventMouse:
+			if ev.Buttons() == tcell.Button1 { // Left mouse button
+				now := time.Now()
 
-					if !lastClick.IsZero() {
-						intervals = append(intervals, now.Sub(lastClick))
+				if !lastClick.IsZero() {
+					intervals = append(intervals, now.Sub(lastClick))
+				}
+				lastClick = now
+
+				if len(intervals) > 1 {
+					var totalInterval time.Duration
+					for _, interval := range intervals {
+						totalInterval += interval
 					}
-					lastClick = now
+					averageInterval := totalInterval / time.Duration(len(intervals))
+					bpm := 60.0 / averageInterval.Seconds()
 
-					if len(intervals) > 1 {
-						var totalInterval time.Duration
-						for _, interval := range intervals {
-							totalInterval += interval
-						}
-						averageInterval := totalInterval / time.Duration(len(intervals))
-						bpm := 60.0 / averageInterval.Seconds()
+					roundedBpm := math.Round(bpm)
 
-						roundedBpm := math.Round(bpm)
-
-						for _, element := range elements {
-							element.Render(roundedBpm, sharedState)
-						}
+					for _, element := range elements {
+						element.Render(sharedState, screen, roundedBpm)
 					}
 				}
+			}
 
-			case termbox.EventKey:
-				if ev.Key == termbox.KeyEsc || ev.Ch == 'q' {
-					stop <- struct{}{}
+		case *tcell.EventKey:
+			switch ev.Key() {
+			case tcell.KeyEscape, tcell.KeyCtrlC:
+				return
+			case tcell.KeyF1:
+				sharedState.RoundOutputs = !sharedState.RoundOutputs
+				for _, element := range elements {
+					element.StateChanged(sharedState, screen)
+				}
+			case tcell.KeyRune:
+				switch ev.Rune() {
+				case 'q', 'Q':
 					return
-				} else if ev.Ch == 'r' || ev.Ch == 'R' {
+				case 'r', 'R':
 					intervals = nil
 					lastClick = time.Time{}
-
 					for _, element := range elements {
-						element.Reset(sharedState)
+						element.Reset(sharedState, screen)
 					}
-				} else if ev.Key == termbox.KeyF1 {
-					sharedState.RoundOutputs = !sharedState.RoundOutputs
-
-					for _, element := range elements {
-						element.StateChanged(sharedState)
-					}
-
 				}
-
-			case termbox.EventError:
-				fmt.Println("Termbox error:", ev.Err)
-				return
 			}
-		}
-	}()
 
-	<-stop
+		case *tcell.EventResize:
+			// Clear and refresh the screen on resize
+			screen.Clear()
+			for _, element := range elements {
+				element.Render(sharedState, screen, 0) // Re-render with initial state
+			}
+
+		default:
+			// Ignore other events
+		}
+	}
 }
