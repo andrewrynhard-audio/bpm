@@ -99,6 +99,7 @@ func (t *Timing) write(screen tcell.Screen, roundOutputs bool, locked bool) {
 
 		renderText(screen, startX, startY, message, tcell.StyleDefault.Foreground(tcell.ColorGreen))
 		screen.Show()
+
 		return
 	}
 
@@ -107,7 +108,7 @@ func (t *Timing) write(screen tcell.Screen, roundOutputs bool, locked bool) {
 	startY := (termHeight - totalHeight) / 2
 
 	// Render BPM at the top
-	renderText(screen, startX, startY-2, fmt.Sprintf("BPM: %d", int(t.BPM)), tcell.StyleDefault.Foreground(tcell.ColorWhite))
+	renderText(screen, startX, startY-2, fmt.Sprintf("BPM: %d", int(t.BPM)), tcell.StyleDefault.Foreground(tcell.ColorDarkGoldenrod))
 
 	// Render table headers
 	currentX := startX
