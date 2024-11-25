@@ -94,7 +94,7 @@ func (t *Timing) write(screen tcell.Screen, bpm float64, roundOutputs bool, lock
 		startX := (termWidth - len(message)) / 2
 		startY := termHeight / 2
 
-		renderText(screen, startX, startY, message, tcell.StyleDefault.Foreground(tcell.ColorGreen))
+		renderText(screen, startX, startY, message, tcell.StyleDefault.Foreground(tcell.ColorGreen).Bold(true))
 		screen.Show()
 
 		return
@@ -105,7 +105,7 @@ func (t *Timing) write(screen tcell.Screen, bpm float64, roundOutputs bool, lock
 	startY := (termHeight - totalHeight) / 2
 
 	// Render BPM at the top
-	renderText(screen, startX, startY-2, fmt.Sprintf("BPM: %d", int(bpm)), tcell.StyleDefault.Foreground(tcell.ColorDarkGoldenrod))
+	renderText(screen, startX, startY-2, fmt.Sprintf("BPM: %d", int(bpm)), tcell.StyleDefault.Foreground(tcell.ColorGreen).Bold(true))
 
 	// Render table headers
 	currentX := startX
@@ -126,7 +126,7 @@ func (t *Timing) write(screen tcell.Screen, bpm float64, roundOutputs bool, lock
 		currentRowY := startY + (row+1)*(1+rowPadding) // Add 1 for header and rowPadding
 
 		currentX := startX
-		renderText(screen, currentX, currentRowY, notes[row], tcell.StyleDefault.Foreground(tcell.ColorWhite))
+		renderText(screen, currentX, currentRowY, notes[row], tcell.StyleDefault.Foreground(tcell.ColorDarkCyan))
 		currentX += columnWidths[0]
 
 		// Render each column with its respective style
