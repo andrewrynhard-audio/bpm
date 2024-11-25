@@ -68,6 +68,7 @@ func (t *Timing) calculate() {
 func (t *Timing) write(roundOutputs bool, screen tcell.Screen) {
 	screen.Clear()
 
+	// Table data
 	headers := []string{"Note", "Time", "10x", "1/10th", "1/100th", "1/1000th"}
 	notes := []string{"1", "1/2", "1/4", "1/8", "1/16", "1/32", "1/64", "1/128", "1/256", "1/512", "1/1024"}
 	milliseconds := []float64{
@@ -76,19 +77,24 @@ func (t *Timing) write(roundOutputs bool, screen tcell.Screen) {
 		t.TwoFiftySixth, t.FiveTwelve, t.TenTwentyFour,
 	}
 
-	// Get terminal size
-	width, height := screen.Size()
-
-	// Calculate column positions dynamically
+	// Column widths (in characters)
 	columnWidths := []int{10, 15, 15, 15, 15, 15}
 	totalWidth := 0
 	for _, w := range columnWidths {
 		totalWidth += w
 	}
-	startX := (width - totalWidth) / 2
-	startY := (height - len(notes) - 2) / 2
 
-	// Display BPM at the top
+	// Total table height (header + rows)
+	totalHeight := len(notes) + 1 // +1 for the header row
+
+	// Terminal size
+	termWidth, termHeight := screen.Size()
+
+	// Calculate offsets for centering
+	startX := (termWidth - totalWidth) / 2
+	startY := (termHeight - totalHeight) / 2
+
+	// Render BPM at the top
 	renderText(screen, startX, startY-2, fmt.Sprintf("BPM: %d", int(t.BPM)), tcell.StyleDefault.Foreground(tcell.ColorWhite))
 
 	// Render table headers
@@ -127,7 +133,7 @@ func (t *Timing) write(roundOutputs bool, screen tcell.Screen) {
 
 	// Display help message at the bottom
 	helpMessage := "Press 'R' to reset, 'ESC' or 'Q' to quit, 'F1' to toggle whole numbers/decimals."
-	renderText(screen, (width-len(helpMessage))/2, height-1, helpMessage, tcell.StyleDefault.Foreground(tcell.ColorGreen))
+	renderText(screen, (termWidth-len(helpMessage))/2, termHeight-1, helpMessage, tcell.StyleDefault.Foreground(tcell.ColorGreen))
 
 	screen.Show()
 }
