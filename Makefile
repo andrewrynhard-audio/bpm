@@ -1,8 +1,10 @@
 VERSION := $(shell git describe --tags --always --dirty)
 REPO := https://api.github.com/repos/andrewrynhard-audio/bpm/releases/latest
 
+all: build
+
 build:
-	go build -ldflags="-X github.com/andrewrynhard-audio/bpm/pkg/update.Version=$(VERSION) -X github.com/andrewrynhard-audio/bpm/pkg/update.Repo=$(REPO)" .
+	go build -ldflags="-X github.com/andrewrynhard-audio/bpm/pkg/ui/update.Version=$(VERSION) -X github.com/andrewrynhard-audio/bpm/pkg/ui/update.Repo=$(REPO)" .
 
 release:
 ifeq ($(TAG),)

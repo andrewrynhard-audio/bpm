@@ -26,6 +26,7 @@ func Tap(sharedState *state.State, elements ...Element) {
 	err = screen.Init()
 	if err != nil {
 		fmt.Println("Error initializing tcell screen:", err)
+
 		return
 	}
 
@@ -63,10 +64,6 @@ func Tap(sharedState *state.State, elements ...Element) {
 
 					roundedBpm := math.Round(bpm)
 					sharedState.BPM = roundedBpm
-
-					for _, element := range elements {
-						element.Render(sharedState, screen)
-					}
 				}
 			}
 
@@ -112,5 +109,11 @@ func Tap(sharedState *state.State, elements ...Element) {
 		default:
 			// Ignore other events
 		}
+
+		for _, element := range elements {
+			element.Render(sharedState, screen)
+		}
+
+		screen.Show()
 	}
 }

@@ -22,6 +22,10 @@ type Timing struct {
 	TenTwentyFour   float64
 }
 
+func New() *Timing {
+	return &Timing{}
+}
+
 func (t *Timing) Render(sharedState *state.State, screen tcell.Screen) {
 	t.calculate(sharedState.BPM)
 	t.write(screen, sharedState.BPM, sharedState.RoundOutputs, sharedState.Locked)
@@ -95,7 +99,6 @@ func (t *Timing) write(screen tcell.Screen, bpm float64, roundOutputs bool, lock
 		startY := termHeight / 2
 
 		renderText(screen, startX, startY, message, tcell.StyleDefault.Foreground(tcell.ColorGreen).Bold(true))
-		screen.Show()
 
 		return
 	}
@@ -146,8 +149,6 @@ func (t *Timing) write(screen tcell.Screen, bpm float64, roundOutputs bool, lock
 	}
 
 	renderText(screen, (termWidth-len(helpMessage))/2, termHeight-1, helpMessage, tcell.StyleDefault.Foreground(tcell.ColorGreen))
-
-	screen.Show()
 }
 
 func renderText(screen tcell.Screen, x, y int, text string, style tcell.Style) {

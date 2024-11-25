@@ -1,14 +1,16 @@
 package update
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
+	"sync"
 
 	"github.com/blang/semver/v4"
+	"github.com/gdamore/tcell/v2"
+
+	"github.com/andrewrynhard-audio/bpm/pkg/state"
 )
 
 var (
@@ -16,19 +18,44 @@ var (
 	Repo    = ""
 )
 
-func Check() error {
-	available, url, err := check()
-	if err != nil {
-		return err
-	}
+type Update struct {
+	sync.Once
 
-	if available {
-		fmt.Printf("An update is available: %s\n", url)
-		fmt.Println("Press Enter to continue...")
-		waitForEnter()
-	}
+	message string
+}
 
-	return nil
+func New() *Update {
+	return &Update{
+		message: Version,
+	}
+}
+
+func (u *Update) Render(sharedState *state.State, screen tcell.Screen) {
+	// Run the update check asynchronously with sync.Once
+	u.Do(func() {
+		go func() {
+			available, url, err := check()
+			if err != nil {
+				u.message = fmt.Sprintf("Error checking for updates: %v", err)
+				return
+			}
+
+			if available {
+				u.message = fmt.Sprintf("An update is available: %s", url)
+			}
+		}()
+	})
+
+	// Display the update message
+	renderText(screen, 1, 1, u.message, tcell.StyleDefault.Foreground(tcell.ColorYellow).Dim(true))
+}
+
+func (u *Update) Reset(sharedState *state.State, screen tcell.Screen) {
+	// No-op
+}
+
+func (u *Update) StateChanged(sharedState *state.State, screen tcell.Screen) {
+	// No-op
 }
 
 func check() (bool, string, error) {
@@ -71,15 +98,16 @@ func check() (bool, string, error) {
 	return false, "", nil
 }
 
+func renderText(screen tcell.Screen, x, y int, text string, style tcell.Style) {
+	for i, ch := range text {
+		screen.SetContent(x+i, y, ch, nil, style)
+	}
+}
+
 // normalizeVersion removes the leading 'v' if present
 func normalizeVersion(version string) string {
 	if strings.HasPrefix(version, "v") {
 		return strings.TrimPrefix(version, "v")
 	}
 	return version
-}
-
-func waitForEnter() {
-	reader := bufio.NewReader(os.Stdin)
-	_, _ = reader.ReadString('\n')
 }
