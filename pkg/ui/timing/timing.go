@@ -64,7 +64,7 @@ func (i *Timing) calculate() {
 func (t *Timing) write(roundOutputs bool) {
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 
-	headers := []string{"Note", "Time", "1/10th", "1/100th"}
+	headers := []string{"Note", "Time", "1/10th", "1/100th", "1/1000th"}
 	notes := []string{"1/4", "1/8", "1/16", "1/32", "1/64", "1/128", "1/256", "1/512", "1/1024"}
 	milliseconds := []float64{
 		t.Quarter, t.Eighth, t.Sixteenth,
@@ -89,6 +89,7 @@ func (t *Timing) write(roundOutputs bool) {
 		ms := milliseconds[row]
 		ms10 := ms / 10
 		ms100 := ms / 100
+		ms1000 := ms / 1000
 
 		renderText(startX, startY+row+1, notes[row], termbox.ColorWhite)
 
@@ -96,6 +97,7 @@ func (t *Timing) write(roundOutputs bool) {
 		renderText(startX+15, startY+row+1, formatWithUnit(ms, roundOutputs), termbox.ColorWhite)
 		renderText(startX+30, startY+row+1, formatWithUnit(ms10, roundOutputs), termbox.ColorWhite)
 		renderText(startX+45, startY+row+1, formatWithUnit(ms100, roundOutputs), termbox.ColorWhite)
+		renderText(startX+60, startY+row+1, formatWithUnit(ms1000, roundOutputs), termbox.ColorWhite)
 	}
 
 	// Display help message at the bottom
