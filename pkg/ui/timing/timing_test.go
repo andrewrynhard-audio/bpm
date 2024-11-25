@@ -42,9 +42,9 @@ func TestFormatWithUnit(t *testing.T) {
 		{15.000, false, "15.000 ms"},
 		// Tests for microseconds
 		{0.996, true, "1 ms"},
-		{0.996, false, "996.000 μs"},
-		{0.0015, true, "2 μs"},
-		{0.0015, false, "1.500 μs"},
+		{0.996, false, "996.000 us"},
+		{0.0015, true, "2 us"},
+		{0.0015, false, "1.500 us"},
 	}
 
 	for _, test := range tests {
