@@ -10,4 +10,10 @@ ifeq ($(TAG),)
 endif
 	git tag -a $(TAG) -m "Release $(TAG)."
 	git push origin $(TAG)
-	VERSION=$(TAG) goreleaser release --clean
+	VERSION=$(TAG) REPO=$(REPO) goreleaser release --clean
+
+release-dry-run:
+ifeq ($(TAG),)
+	$(error TAG is not set)
+endif
+	VERSION=$(TAG) REPO=$(REPO) goreleaser build --snapshot --clean
