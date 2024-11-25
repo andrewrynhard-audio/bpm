@@ -22,6 +22,10 @@ builds:
       - linux
       - windows
       - darwin
+    ldflags:
+      - "-X github.com/andrewrynhard-audio/bpm/pkg/update.Version={{.Env.VERSION}}"
+      - "-X github.com/andrewrynhard-audio/bpm/pkg/update.Repo={{.Env.REPO}}"
+
 
 archives:
   - format: tar.gz

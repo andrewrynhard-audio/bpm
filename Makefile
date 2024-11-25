@@ -10,4 +10,4 @@ ifeq ($(TAG),)
 endif
 	git tag -a $(TAG) -m "Release $(TAG)."
 	git push origin $(TAG)
-	goreleaser release --clean
+	VERSION=$(TAG) goreleaser release --clean
