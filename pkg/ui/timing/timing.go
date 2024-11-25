@@ -101,7 +101,7 @@ func (t *Timing) write(roundOutputs bool, screen tcell.Screen) {
 	// Render table headers
 	currentX := startX
 	for i, header := range headers {
-		renderText(screen, currentX, startY, header, tcell.StyleDefault.Foreground(tcell.ColorDarkCyan))
+		renderText(screen, currentX, startY, header, tcell.StyleDefault.Foreground(tcell.ColorDarkCyan).Bold(true))
 		currentX += columnWidths[i]
 	}
 
@@ -120,19 +120,12 @@ func (t *Timing) write(roundOutputs bool, screen tcell.Screen) {
 		renderText(screen, currentX, currentRowY, notes[row], tcell.StyleDefault.Foreground(tcell.ColorWhite))
 		currentX += columnWidths[0]
 
-		renderText(screen, currentX, currentRowY, formatWithUnit(ms, roundOutputs), tcell.StyleDefault.Foreground(tcell.ColorWhite))
-		currentX += columnWidths[1]
-
-		renderText(screen, currentX, currentRowY, formatWithUnit(ms10x, roundOutputs), tcell.StyleDefault.Foreground(tcell.ColorWhite))
-		currentX += columnWidths[2]
-
-		renderText(screen, currentX, currentRowY, formatWithUnit(ms10, roundOutputs), tcell.StyleDefault.Foreground(tcell.ColorWhite))
-		currentX += columnWidths[3]
-
-		renderText(screen, currentX, currentRowY, formatWithUnit(ms100, roundOutputs), tcell.StyleDefault.Foreground(tcell.ColorWhite))
-		currentX += columnWidths[4]
-
-		renderText(screen, currentX, currentRowY, formatWithUnit(ms1000, roundOutputs), tcell.StyleDefault.Foreground(tcell.ColorWhite))
+		// Render each column with its respective style
+		for _, value := range []float64{ms, ms10x, ms10, ms100, ms1000} {
+			formatted, style := formatWithUnit(value, roundOutputs)
+			renderText(screen, currentX, currentRowY, formatted, style)
+			currentX += 15
+		}
 	}
 
 	// Render help message at the bottom
@@ -152,39 +145,43 @@ func renderText(screen tcell.Screen, x, y int, text string, style tcell.Style) {
 // - If `roundToWhole` is true, it rounds before determining the unit.
 // - For values ≥ 1, it uses milliseconds (ms).
 // - For values < 1, it converts to microseconds (μs).
-func formatWithUnit(value float64, roundToWhole bool) string {
+func formatWithUnit(value float64, roundToWhole bool) (string, tcell.Style) {
+	// Define styles for different units with color-blind-friendly shades
+	secondsStyle := tcell.StyleDefault.Foreground(tcell.ColorYellow)                     // Yellow
+	millisecondsStyle := tcell.StyleDefault.Foreground(tcell.NewRGBColor(100, 150, 255)) // Light blue
+	microsecondsStyle := tcell.StyleDefault.Foreground(tcell.NewRGBColor(255, 165, 0))   // Orange
+
 	switch {
 	case roundToWhole:
-		// Apply rounding first
 		rounded := roundHumanCascading(value)
 
 		switch {
 		case rounded >= 1000:
 			// Handle seconds for values >= 1000 ms
-			return fmt.Sprintf("%.0f s", rounded/1000)
+			return fmt.Sprintf("%.0f s", rounded/1000), secondsStyle
 		case rounded >= 1:
 			// Handle milliseconds for values >= 1 ms
-			return fmt.Sprintf("%.0f ms", rounded)
+			return fmt.Sprintf("%.0f ms", rounded), millisecondsStyle
 		default:
 			// Handle microseconds for values < 1 ms
 			roundedInMicroseconds := roundHumanCascading(value * 1000)
 			if roundedInMicroseconds < 1 {
-				return "<1 μs"
+				return "<1 μs", microsecondsStyle
 			}
-			return fmt.Sprintf("%.0f μs", roundedInMicroseconds)
+			return fmt.Sprintf("%.0f μs", roundedInMicroseconds), microsecondsStyle
 		}
 
 	default: // Not rounding
 		switch {
 		case value >= 1000:
 			// Handle seconds for values >= 1000 ms
-			return fmt.Sprintf("%.3f s", value/1000)
+			return fmt.Sprintf("%.3f s", value/1000), secondsStyle
 		case value >= 1:
 			// Handle milliseconds for values >= 1 ms
-			return fmt.Sprintf("%.3f ms", value)
+			return fmt.Sprintf("%.3f ms", value), millisecondsStyle
 		default:
 			// Handle microseconds for values < 1 ms
-			return fmt.Sprintf("%.3f μs", value*1000)
+			return fmt.Sprintf("%.3f μs", value*1000), microsecondsStyle
 		}
 	}
 }
