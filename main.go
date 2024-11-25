@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	sharedState := &state.SharedState{
+	sharedState := &state.State{
 		RoundOutputs: true,
 	}
 

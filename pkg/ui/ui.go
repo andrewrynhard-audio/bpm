@@ -10,12 +10,12 @@ import (
 )
 
 type Element interface {
-	Render(*state.SharedState, tcell.Screen, float64)
-	Reset(*state.SharedState, tcell.Screen)
-	StateChanged(*state.SharedState, tcell.Screen)
+	Render(*state.State, tcell.Screen)
+	Reset(*state.State, tcell.Screen)
+	StateChanged(*state.State, tcell.Screen)
 }
 
-func Tap(sharedState *state.SharedState, elements ...Element) {
+func Tap(sharedState *state.State, elements ...Element) {
 	screen, err := tcell.NewScreen()
 	if err != nil {
 		fmt.Println("Error creating tcell screen:", err)
@@ -62,9 +62,10 @@ func Tap(sharedState *state.SharedState, elements ...Element) {
 					bpm := 60.0 / averageInterval.Seconds()
 
 					roundedBpm := math.Round(bpm)
+					sharedState.BPM = roundedBpm
 
 					for _, element := range elements {
-						element.Render(sharedState, screen, roundedBpm)
+						element.Render(sharedState, screen)
 					}
 				}
 			}
@@ -105,7 +106,7 @@ func Tap(sharedState *state.SharedState, elements ...Element) {
 		case *tcell.EventResize:
 			screen.Clear()
 			for _, element := range elements {
-				element.Render(sharedState, screen, 0)
+				element.Render(sharedState, screen)
 			}
 
 		default:

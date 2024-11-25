@@ -9,7 +9,6 @@ import (
 )
 
 type Timing struct {
-	BPM             float64
 	Full            float64
 	Half            float64
 	Quarter         float64
@@ -23,14 +22,12 @@ type Timing struct {
 	TenTwentyFour   float64
 }
 
-func (t *Timing) Render(sharedState *state.SharedState, screen tcell.Screen, bpm float64) {
-	t.BPM = bpm
-	t.calculate()
-	t.write(screen, sharedState.RoundOutputs, sharedState.Locked)
+func (t *Timing) Render(sharedState *state.State, screen tcell.Screen) {
+	t.calculate(sharedState.BPM)
+	t.write(screen, sharedState.BPM, sharedState.RoundOutputs, sharedState.Locked)
 }
 
-func (t *Timing) Reset(sharedState *state.SharedState, screen tcell.Screen) {
-	t.BPM = 0
+func (t *Timing) Reset(sharedState *state.State, screen tcell.Screen) {
 	t.Full = 0
 	t.Half = 0
 	t.Quarter = 0
@@ -43,16 +40,16 @@ func (t *Timing) Reset(sharedState *state.SharedState, screen tcell.Screen) {
 	t.FiveTwelve = 0
 	t.TenTwentyFour = 0
 
-	t.write(screen, sharedState.RoundOutputs, sharedState.Locked)
+	t.write(screen, sharedState.BPM, sharedState.RoundOutputs, sharedState.Locked)
 }
 
-func (t *Timing) StateChanged(sharedState *state.SharedState, screen tcell.Screen) {
+func (t *Timing) StateChanged(sharedState *state.State, screen tcell.Screen) {
 	// Rerender with the updated rounding state
-	t.write(screen, sharedState.RoundOutputs, sharedState.Locked)
+	t.write(screen, sharedState.BPM, sharedState.RoundOutputs, sharedState.Locked)
 }
 
-func (t *Timing) calculate() {
-	t.Full = 240000.00 / t.BPM
+func (t *Timing) calculate(bpm float64) {
+	t.Full = 240000.00 / bpm
 	t.Half = t.Full * 0.5
 	t.Quarter = t.Half * 0.5
 	t.Eighth = t.Quarter * 0.5
@@ -65,7 +62,7 @@ func (t *Timing) calculate() {
 	t.TenTwentyFour = t.Quarter * 0.00390625
 }
 
-func (t *Timing) write(screen tcell.Screen, roundOutputs bool, locked bool) {
+func (t *Timing) write(screen tcell.Screen, bpm float64, roundOutputs bool, locked bool) {
 	screen.Clear()
 
 	// Table data
@@ -91,7 +88,7 @@ func (t *Timing) write(screen tcell.Screen, roundOutputs bool, locked bool) {
 	// Terminal size
 	termWidth, termHeight := screen.Size()
 
-	if t.BPM == 0 {
+	if bpm == 0 {
 		// Display a centered message when BPM is zero
 		message := "Tap to get started"
 		startX := (termWidth - len(message)) / 2
@@ -108,7 +105,7 @@ func (t *Timing) write(screen tcell.Screen, roundOutputs bool, locked bool) {
 	startY := (termHeight - totalHeight) / 2
 
 	// Render BPM at the top
-	renderText(screen, startX, startY-2, fmt.Sprintf("BPM: %d", int(t.BPM)), tcell.StyleDefault.Foreground(tcell.ColorDarkGoldenrod))
+	renderText(screen, startX, startY-2, fmt.Sprintf("BPM: %d", int(bpm)), tcell.StyleDefault.Foreground(tcell.ColorDarkGoldenrod))
 
 	// Render table headers
 	currentX := startX
