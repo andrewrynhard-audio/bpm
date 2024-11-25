@@ -91,6 +91,17 @@ func (t *Timing) write(roundOutputs bool, screen tcell.Screen) {
 	// Terminal size
 	termWidth, termHeight := screen.Size()
 
+	if t.BPM == 0 {
+		// Display a centered message when BPM is zero
+		message := "Tap to get started"
+		startX := (termWidth - len(message)) / 2
+		startY := termHeight / 2
+
+		renderText(screen, startX, startY, message, tcell.StyleDefault.Foreground(tcell.ColorGreen))
+		screen.Show()
+		return
+	}
+
 	// Calculate offsets for centering
 	startX := (termWidth - totalWidth) / 2
 	startY := (termHeight - totalHeight) / 2
