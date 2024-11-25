@@ -84,6 +84,7 @@ func Tap(sharedState *state.State, elements ...Element) {
 					intervals = nil
 					lastClick = time.Time{}
 					sharedState.Reset()
+					screen.EnableMouse()
 					for _, element := range elements {
 						element.Reset(sharedState, screen)
 					}
@@ -94,6 +95,12 @@ func Tap(sharedState *state.State, elements ...Element) {
 					}
 				case 'l', 'L':
 					sharedState.Locked = !sharedState.Locked
+					if sharedState.Locked {
+						screen.DisableMouse()
+					} else {
+						screen.EnableMouse()
+					}
+
 					for _, element := range elements {
 						element.StateChanged(sharedState, screen)
 					}
