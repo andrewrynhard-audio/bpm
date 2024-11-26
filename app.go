@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"math"
 	"time"
 
@@ -56,7 +55,6 @@ func (a *App) startup(ctx context.Context) {
 }
 
 func (a *App) Click() float64 {
-	log.Println("Version: ", Version)
 	now := time.Now()
 	a.clickTimes = append(a.clickTimes, now)
 
