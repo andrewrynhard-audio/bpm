@@ -1,0 +1,96 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.modal-content p {
+    font-size: 16px;
+    margin: 15px 0;
+    color: #555;
+}
+
+.modal-content a {
+    display: block;
+    margin: 10px 0;
+    font-size: 16px;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.modal-content a:hover {
+    text-decoration: underline;
+}
+
+.modal-content button {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.modal-content button:hover {
+    background: #0056b3;
+}
+
+.modal-content .update-link {
+    background: none;
+    border: none;
+    color: #007bff;
+    /* Link-like color */
+    font-size: 16px;
+    font-weight: normal;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+    display: inline;
+    /* Ensure it looks like text */
+    box-shadow: none;
+    /* Remove default button focus shadow */
+}
+
+.modal-content .update-link:hover {
+    color: #0056b3;
+    /* Darker shade on hover */
+    background: none;
+    /* Explicitly remove background */
+    text-decoration: underline;
+    box-shadow: none;
+    /* Remove any hover shadow */
+}
+
+.modal-content .update-link:focus {
+    outline: none;
+    /* Remove default focus outline */
+    background: none;
+    /* Explicitly remove background */
+    box-shadow: none;
+    /* Remove focus shadow */
+}

@@ -1,3 +1,4 @@
-bpm
-
-dist/
+build/bin
+build/release
+node_modules
+frontend/dist

@@ -1,0 +1,213 @@
+html {
+    background-color: rgba(27, 38, 54, 1);
+    text-align: center;
+    color: white;
+}
+
+body {
+    margin: 0;
+    color: white;
+    font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+        "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+        sans-serif;
+}
+
+@font-face {
+    font-family: "Nunito";
+    font-style: normal;
+    font-weight: 400;
+    src: local(""),
+        url("assets/fonts/nunito-v16-latin-regular.woff2") format("woff2");
+}
+
+#app {
+    height: 100vh;
+    text-align: center;
+}
+
+/* Container for the entire app */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    margin: 0;
+    font-family: "Fira Code", monospace;
+    gap: 20px;
+    /* Add consistent spacing between elements */
+}
+
+/* BPM text inside the circle */
+.bpm-text {
+    color: #ffffff;
+    font-size: 32px;
+    font-weight: bold;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Instructions below the circle */
+.instructions {
+    margin-top: 20px;
+    font-size: 16px;
+    color: #555;
+}
+
+/* Table for displaying timing information */
+.table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0 auto;
+    font-family: "Fira Code", monospace;
+    font-size: 14px;
+    color: #333;
+    /* Neutral text color */
+}
+
+.table-container {
+    width: 80%;
+    /* Matches table width */
+    height: 300px;
+    /* Reserve enough space for the table */
+    margin-top: 20px;
+    text-align: center;
+    transition: opacity 0.3s ease;
+    /* Smooth transition when toggling visibility */
+}
+
+.table-container.hidden {
+    opacity: 0;
+    /* Hide the table smoothly */
+}
+
+.table-container.visible {
+    opacity: 1;
+}
+
+/* Table Header */
+.table th {
+    text-align: left;
+    /* Align headers to the left for a clean look */
+    background-color: #f9f9f9;
+    /* Subtle background for headers */
+    font-weight: bold;
+    padding: 10px;
+    border-bottom: 2px solid #ddd;
+    /* Underline for separation */
+}
+
+/* Table Cells */
+.table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    background-color: #fff;
+    /* Clean horizontal lines between rows */
+}
+
+.table th:nth-child(1),
+.table td:nth-child(1) {
+    width: 120px;
+    /* Adjust this value as needed */
+    text-align: left;
+    /* Align numbers to the right for a cleaner look */
+}
+
+/* Remove Alternating Row Colors */
+.table tr {
+    background-color: #fff;
+    /* Uniform background for all rows */
+}
+
+/* Highlight Hovered Rows */
+.table tr:hover {
+    background-color: #f5f5f5;
+    /* Subtle hover effect */
+}
+
+table {
+    border: 1px solid #ccc;
+    margin: 20px auto;
+    width: 80%;
+    text-align: center;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.circle {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background-color: #007bff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.1s ease-in-out, background-color 0.3s ease;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.circle:active {
+    transform: scale(0.95);
+}
+
+.toggle-button {
+    margin-top: 10px;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.toggle-button:hover {
+    background-color: #0056b3;
+}
+
+.time-header-asterisk {
+    font-style: italic;
+    font-size: 12px;
+    margin-left: 5px;
+    color: #555;
+    /* Subtle text color */
+}
+
+.update-alert {
+    background-color: #ffeb3b;
+    color: #333;
+    padding: 10px 20px;
+    margin: 20px 0;
+    border-radius: 5px;
+    text-align: center;
+    font-family: "Fira Code", monospace;
+}
+
+.update-alert a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.update-alert a:hover {
+    text-decoration: underline;
+}
