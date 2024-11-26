@@ -24,9 +24,9 @@ build:
 		for ARCH in amd64 arm64; do \
 			wails build -clean -platform $$OS/$$ARCH -ldflags="-X main.Version=$(VERSION) -X main.Repo=$(REPO)"; \
 			if [ $$OS = "windows" ]; then \
-				tar -czf $(RELEASE_DIR)/bpm-$$OS-$$ARCH.tar.gz -C $(OUTPUT_DIR) bpm.exe; \
+				tar -czf $(RELEASE_DIR)/BPM-$$OS-$$ARCH.tar.gz -C $(OUTPUT_DIR) BPM.exe; \
 			else \
-				tar -czf $(RELEASE_DIR)/bpm-$$OS-$$ARCH.tar.gz -C $(OUTPUT_DIR) bpm.app; \
+				tar -czf $(RELEASE_DIR)/BPM-$$OS-$$ARCH.tar.gz -C $(OUTPUT_DIR) BPM.app; \
 			fi; \
 		done; \
 	done
