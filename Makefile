@@ -3,6 +3,17 @@ REPO := https://api.github.com/repos/andrewrynhard-audio/bpm/releases/latest
 OUTPUT_DIR := ./build/bin
 RELEASE_DIR := ./build/release
 
+define guard
+	@if [ -z "$($(1))" ]; then \
+		echo "Error: $(1) is not set"; \
+		exit 1; \
+	fi
+endef
+
+check-env:
+	$(call guard,TAG)
+	$(call guard,GITHUB_TOKEN)
+
 all: build
 
 .PHONY: build
@@ -22,19 +33,11 @@ build:
 
 .PHONY: tag
 tag:
-	@if [ -z "$(TAG)" ]; then \
-		echo "TAG is not set"; \
-		exit 1; \
-	fi
 	@git tag -a $(TAG) -m "Release $(TAG)."
 	@git push origin $(TAG)
 
 .PHONY: release
-release: clean tag build
-	@if [ -z "$(GITHUB_TOKEN)" ]; then \
-		echo "GITHUB_TOKEN is not set"; \
-		exit 1; \
-	fi
+release: check-env clean tag build
 	@gh release create $(TAG) \
 		$(RELEASE_DIR)/* \
 		--title "$(TAG)"
