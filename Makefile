@@ -1,4 +1,4 @@
-VERSION := $(shell git describe --tags --always --dirty)
+VERSION = $(shell git describe --tags --always --dirty)
 REPO := https://api.github.com/repos/andrewrynhard-audio/bpm/releases/latest
 OUTPUT_DIR := ./build/bin
 RELEASE_DIR := ./build/release
