@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -21,6 +22,8 @@ type UpdateInfo struct {
 }
 
 func CheckForUpdate() (UpdateInfo, error) {
+	log.Printf("Checking for updates. Current version: %s, Repo: %s", Version, Repo)
+
 	resp, err := http.Get(Repo)
 	if err != nil {
 		return UpdateInfo{Available: false, Message: fmt.Sprintf("Error checking for updates: %v", err)}, err
@@ -54,12 +57,16 @@ func CheckForUpdate() (UpdateInfo, error) {
 	}
 
 	if latest.GT(current) {
+		log.Printf("Update available: %s -> %s", currentVersion, latestVersion)
+
 		return UpdateInfo{
 			Available: true,
 			Message:   release.TagName,
 			URL:       release.HTMLURL,
 		}, nil
 	}
+
+	log.Printf("You are using the latest version: %s", currentVersion)
 
 	return UpdateInfo{
 		Available: false,
