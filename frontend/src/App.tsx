@@ -17,6 +17,12 @@ const App: React.FC = () => {
     const [updateInfo, setUpdateInfo] = useState<{ available: boolean; message: string; url?: string } | null>(null);
     const [showModal, setShowModal] = useState<boolean>(false);
 
+    const [bpm, setBpm] = useState<number>(0);
+    const [timing, setTiming] = useState<Timing | null>(null);
+    const [roundOutputs, setRoundOutputs] = useState<boolean>(false);
+    const [divisionMode, setDivisionMode] = useState<number>(0); // 0: NoDivision, 1: DivideBy100, 2: DivideBy1000
+
+    // Fetch update info on mount
     useEffect(() => {
         const fetchUpdateInfo = async () => {
             try {
@@ -33,24 +39,38 @@ const App: React.FC = () => {
         fetchUpdateInfo();
     }, []);
 
-    const [bpm, setBpm] = useState<number>(0)
-    const [timing, setTiming] = useState<Timing | null>(null)
+    // Initialize app state on mount
+    useEffect(() => {
+        const initializeAppState = async () => {
+            try {
+                const timings: Timing = await GetTimings();
+                const isRounded: boolean = await GetRoundState();
+                const mode: number = await GetDivisionMode();
+
+                setTiming(timings);
+                setRoundOutputs(isRounded);
+                setDivisionMode(mode);
+            } catch (err) {
+                console.error("Error initializing app state:", err);
+            }
+        };
+
+        initializeAppState();
+    }, []);
 
     const handleTap = async () => {
-        const newBpm: number = await Click()
-        setBpm(parseFloat(newBpm.toFixed(2)))
+        const newBpm: number = await Click();
+        setBpm(parseFloat(newBpm.toFixed(2)));
 
-        const timings: Timing = await GetTimings()
-        setTiming(timings)
-    }
+        const timings: Timing = await GetTimings();
+        setTiming(timings);
+    };
 
     const handleReset = async () => {
-        await Reset()
-        setBpm(0)
-        setTiming(null)
-    }
-
-    const [roundOutputs, setRoundOutputs] = useState<boolean>(false);
+        await Reset();
+        setBpm(0);
+        setTiming(null);
+    };
 
     const handleToggleRounding = async () => {
         await ToggleRounding();
@@ -60,13 +80,10 @@ const App: React.FC = () => {
         setRoundOutputs(isRounded);
     };
 
-
-    const [divisionMode, setDivisionMode] = useState<number>(0); // 0: NoDivision, 1: DivideBy100, 2: DivideBy1000
-
     const handleCycleDivisionMode = async () => {
-        await CycleDivisionMode(); // Call the backend method to update the division mode
-        const timings: Timing = await GetTimings(); // Fetch updated timings
-        const mode: number = await GetDivisionMode(); // Fetch the current division mode
+        await CycleDivisionMode();
+        const timings: Timing = await GetTimings();
+        const mode: number = await GetDivisionMode();
         setTiming(timings);
         setDivisionMode(mode);
     };
@@ -76,8 +93,8 @@ const App: React.FC = () => {
             if (event.key === "r" || event.key === "R") {
                 handleReset();
             } else if (event.key === "F1") {
-                event.preventDefault() // Prevent the default F1 help action
-                await handleToggleRounding()
+                event.preventDefault();
+                await handleToggleRounding();
             } else if (event.key === "F2") {
                 event.preventDefault();
                 await handleCycleDivisionMode();
@@ -86,9 +103,9 @@ const App: React.FC = () => {
 
         window.addEventListener("keydown", handleKeyPress);
         return () => {
-            window.removeEventListener("keydown", handleKeyPress)
-        }
-    }, [])
+            window.removeEventListener("keydown", handleKeyPress);
+        };
+    }, []);
 
     return (
         <div className="container">
@@ -145,7 +162,7 @@ const App: React.FC = () => {
             </div>
         </div>
     );
+};
 
-}
 
 export default App
