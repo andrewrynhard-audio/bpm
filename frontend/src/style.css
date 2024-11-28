@@ -67,6 +67,10 @@ body {
     /* Smooth transition when toggling visibility */
 }
 
+.table-container.fullscreen {
+    width: 55%;
+}
+
 .table-container.hidden {
     opacity: 0;
     /* Hide the table smoothly */

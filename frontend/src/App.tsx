@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { WindowIsFullscreen } from "../wailsjs/runtime";
 import Modal from "./Modal";
 import { CheckForUpdate, Click, Reset, GetTimings, ToggleRounding, GetRoundState, CycleDivisionMode, GetDivisionMode } from "../wailsjs/go/main/App";
 
@@ -22,6 +23,34 @@ const App: React.FC = () => {
     const [roundOutputs, setRoundOutputs] = useState<boolean>(false);
     const [divisionMode, setDivisionMode] = useState<number>(0); // 0: NoDivision, 1: DivideBy100, 2: DivideBy1000
 
+    const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+
+    const updateFullscreenState = async () => {
+        try {
+            const fullscreen = await WindowIsFullscreen();
+            setIsFullscreen(fullscreen);
+        } catch (error) {
+            console.error("Failed to check fullscreen state:", error);
+        }
+    };
+
+    useEffect(() => {
+        // Check fullscreen state on mount
+        updateFullscreenState();
+
+        // Listen for window resize as a fallback
+        const handleResize = () => {
+            updateFullscreenState();
+        };
+
+        window.addEventListener("resize", handleResize);
+
+        // Cleanup event listener
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, []);
+
     // Fetch update info on mount
     useEffect(() => {
         const fetchUpdateInfo = async () => {
@@ -37,6 +66,9 @@ const App: React.FC = () => {
         };
 
         fetchUpdateInfo();
+
+        // Check fullscreen state on mount
+        updateFullscreenState();
     }, []);
 
     // Initialize app state on mount
@@ -131,7 +163,7 @@ const App: React.FC = () => {
                 </span>
                 .
             </p>
-            <div className={`table-container ${timing ? "visible" : "hidden"}`}>
+            <div className={`table-container ${isFullscreen ? "fullscreen" : ""} ${timing ? "visible" : "hidden"}`}>
                 {timing && (
                     <table className="table">
                         <thead>
